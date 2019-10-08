@@ -1,0 +1,128 @@
+---
+title: "Discrete Probability Assessment"
+author: "Fabio Carvalho Lima"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(digits = 3) # report 3 significant digits
+```
+
+## Assessment: Discrete Probability
+### Question 1: Olympic running
+
+
+Libraries that will be used for the calculations in this assessment. This assessment has 3 sections, all related to *Discrete Probability*.
+
+```{r Libraries, message=FALSE, warning=FALSE}
+
+library(gtools)
+library(tidyverse)
+
+```
+  In the 200m dash finals in the Olympics, 8 runners compete for 3 medals 
+(order matters). In the 2012 Olympics, 3 of the 8 runners were from Jamaica 
+and the other 5 were from different countries. The three medals were all won 
+by Jamaica (Usain Bolt, Yohan Blake, and Warren Weir).
+
+Use the information above to help you answer the following four questions.
+
+**Question 1a** - How many different ways can the 3 medals be distributed across 8 runners?
+
+**Solution 1a :**
+To answer this question we need to remember in this kind of competion the orders matters, for the first runner, he will get gold medal, and so on, it seems we 
+have to use permutations function to answer this question.
+
+```{r Answer 1a }
+
+all_medals <- nrow(permutations(8,3)) # if orders matters, we must use permutations
+                                      # nrow will give us the number of the observations
+all_medals
+```
+
+---
+
+**Question 1b** - How many different ways can the three medals be distributed among the 3 runners from Jamaica?
+
+**Solution 1b :**
+To answer this question we can use the same approach for previous question, the only diference, we have to make the permutations between the runners from Jamaica only.
+
+```{r Answer 1b }
+
+nrow(permutations(3,3)) # all the permutations between 3 runners from the same country
+
+```
+
+---
+
+**Question 1c** - What is the probability that all 3 medals are won by Jamaica?
+
+
+**Solution 1c:** 
+
+
+S = all different ways the 3 medals distributed between 8 runners *(answer question 1a)
+
+
+$n_{runners from Jamaica}$ = all ways the Jamaica runners can win
+
+
+$Pr(runners from Jamaica)$ = **probability that all 3 medals are won by Jamaica**
+
+```{r Answer 1c }
+runners_Jamaica <- nrow(permutations(3,3)) # Jamaica cases
+all_8_runners <- nrow(permutations(8,3))   # all cases
+
+Pr_runners_Jamaica <- runners_Jamaica / all_8_runners
+Pr_runners_Jamaica  # our answer
+
+```
+---
+
+**Question 1d** - Run a Monte Carlo simulation on this vector representing of the 8 runners in this race:
+
+```{r question 1d vector of runners}
+runners <- c("Jamaica", "Jamaica", "Jamaica", "USA", "Ecuador", "Netherlands",
+             "France", "South Africa")
+```
+Calculate the probability that all the runners are from Jamaica.
+
+
+**Solution 1d :**
+
+In order to create a Monte Carlo Simulation, we need to 3 steps:
+
+1.Trials:
+
+
+We need to create a trial which it will represent the sample from the runners vectors, then take 3 samples at time.
+
+```{r trials}
+runners_medals <- sample(runners, size = 3)
+```
+2.Success
+
+
+Here we must get all winners from Jamaica.
+
+```{r success}
+all(runners_medals == "Jamaica")
+```
+3. Monte Carlo Simulation
+
+
+Using the definitions we create on step 1 and step 2, here we code the simulation
+```{r Monte Carlo Simulation}
+set.seed(1)
+B <- 10^5 # number of simulations 
+medals <- replicate(B, {
+  runners_medals <- sample(runners, size = 3)
+  all(runners_medals %in% "Jamaica")
+})
+(Pr_runners_Jamaica <- mean(medals)) # show all the probabilities for the Jamaica runners
+```
+---
