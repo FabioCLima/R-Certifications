@@ -1,0 +1,153 @@
+---
+title: "discrete-probability-assessment-part2"
+output:
+  word_document: default
+  html_notebook: default
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(digits = 3) # report 3 significant digits
+```
+
+Libraries that will be used for the calculations in this assessment. This assessment has 3 sections, all related to *Discrete Probability*.
+
+```{r Libraries, message=FALSE, warning=FALSE}
+
+library(gtools)
+library(tidyverse)
+
+```
+# Question 2: Restaurante Management
+
+A restaurant manager wants to advertise that his lunch special offers enough
+choices to eat different meals every day of the year. He doesn't think his
+current special actually allows that number of choices, but wants to change
+his special if needed to allow at least 365 choices.
+
+A meal at the restaurant includes 1 entree, 2 sides, and 1 drink. He
+currently offers a choice of 1 entree from a list of 6 options, a choice of
+2 different sides from a list of 6 options, and a choice of 1 drink from a
+list of 2 options.
+
+* Question2a:
+How many meal combinations are possible with the current menu ?
+
+**Solution:** 
+All we need to do here is use counting: 1 have only one 1 entree from a list of 6 options: nrow(permutations(6,1))
+```{r entree}
+entree <- 6
+```
+For the sides we can write: nrow(combinations(6,2))
+```{r sides}
+
+nrow(combinations(6,2))
+```
+For the drink options we will have:
+```{r drinks}
+
+drink <- 2
+```
+To calculate all possible combinations for the menu we can  multiply the combinations above:
+
+```{r new menu}
+
+(all_menu_combinations <- entree  * nrow(combinations(6,2)) *
+   drink)
+```
+
+* Question 2b:
+The manager has one additional drink he could add to the special.
+
+
+How many combinations are possible if he expands his original special to 3 drink options ?
+
+**Solution:**
+For this question we just to update the combinations for drink, instead use **nrow(permutations(2,1)) --> nrow(permutations(3,1))**
+
+```{r new menu2}
+
+(all_new_menu_combinations <- nrow(permutations(6,1))*nrow(combinations(6,2))*
+  nrow(permutations(3,1)))
+```
+
+* Question 2c:
+
+The manager decides to add the third drink but needs to expand the number of options. The manager would prefer not to change his menu further and wants to know if he can meet his goal by letting customers choose more sides.
+
+How many meal combinations are there if customers can choose from 6 entrees, 3 drinks, and select 3 sides from the current 6 options?
+
+**Solution 2c:**
+we need to update our combinations into this new one:
+for 6 entrees and 6 options:
+
+```{r}
+
+(n_entrees <- 6)
+```
+3 sides from the current 6 options:
+
+```{r}
+
+(n_sides <- nrow(combinations(6,3)))
+```
+3 drinks from a list of 2 options
+
+```{r}
+(n_drinks <- 3)
+```
+new menu n_entrees*n_sides*n_drinks
+
+```{r}
+
+(new_menu <- n_entrees*n_sides*n_drinks)
+```
+* Question 2d:
+
+The manager is concerned that customers may not want 3 sides with their meal.
+
+
+He is willing to increase the number of entree choices instead, but if he addstoo many expensive options it could eat into profits. He wants to know how many entree choices he would have to offer in order to meet his goal.
+
+
+Use sapply to apply the function to entree option counts ranging from 1 to 12.
+What is the minimum number of entree options required in order to generate more
+than 365 combinations?
+
+```{r}
+
+entree_choices <- c(1:12)
+```
+```{r function menu}
+
+menu <- function(entree_choices){
+  # for n entrees and 6 options: n = entree_choices
+  entrees <- entree_choices
+  n_sides <- nrow(combinations(6,2)) # sides combinations
+  n_drinks <- 3
+  new_menu <- entrees*n_sides*n_drinks # menu combinations
+}
+
+new_menu <- sapply(entree_choices, menu)
+data.frame(entree_choices = 1:12, new_menu = new_menu) %>%
+  filter(new_menu > 365) %>%
+  min(.$entree_choice)
+```
+
+The manager isn't sure he can afford to put that many entree choices on the lunch menu and thinks it would be cheaper for him to expand the number of sides. He wants to know how many sides he would have to offer to meet his goal of at least 365 combinations.
+
+
+
+Write a function that takes a number of side choices and returns the number  of meal combinations possible given 6 entree choices, 3 drink choices, and a selection of 2 sides from the specified number of side choices.
+
+```{r }
+
+side_choices <- function(x){
+  6 * nrow(combinations(x, 2)) * 3
+}
+
+combos <- sapply(2:12, side_choices)
+
+data.frame(sides = 2:12, combos = combos) %>%
+  filter(combos > 365) %>%
+  min(.$sides)
+```
