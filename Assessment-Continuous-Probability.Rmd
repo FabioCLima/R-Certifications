@@ -1,0 +1,195 @@
+---
+title: 'Data Science: Probability'
+output:
+  word_document: default
+  pdf_document: default
+  html_notebook: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(digits = 3) # report 3 significant digits
+```
+
+```{r library , message=FALSE, warning=FALSE, include=TRUE}
+library(tidyverse)
+```
+
+
+## Questions 1 and 2: ACT scores, part 1
+The ACT is a standardized college admissions test used in the United States. The four multi-part questions in this assessment all involve simulating some ACT test scores and answering probability questions about them.
+
+For the three year period 2016-2018, ACT standardized test scores were approximately normally distributed with a mean of 20.9 and standard deviation of 5.7. (Real ACT scores are integers between 1 and 36, but we will ignore this detail and use continuous values instead.)
+
+---
+
+First we'll simulate an ACT test score dataset and answer some questions about it.
+
+Set the seed to 16, then use **rnorm** to generate a normal distribution of 10000 tests with a mean of 20.9 and standard deviation of 5.7. Save these values as **act_scores**. You'll be using this dataset throughout these four multi-part questions.
+
+In order to generate a normal distribution of $10^{4}$ tests with mean of 20.9 and standard deviation of 5.7, we need to use the function **rnorm(n,avg,sd)**. To do this first we to setup the **set.seed**.
+
+```{r set-seed}
+x <- 16
+set.seed(x, sample.kind = "Rounding")
+```
+```{r act-scores}
+size_sample <- 10^4
+avg <- 20.9
+sd <- 5.7
+act_scores <- rnorm(size_sample, avg, sd)
+```
+
+Let's plot the **act_score** to check it up is looks like a normal distribution.
+
+```{r plot-act_scores}
+data.frame(act_scores = act_scores) %>%
+  ggplot(aes(x = act_scores)) +
+  geom_histogram(color = "black", fill = "blue", binwidth = 2) +
+  geom_vline(xintercept = avg, color = "red", linetype = "dashed",    size = 1.5)
+```
+
+* Question 1a
+What is the mean of act_scores ?
+
+```{r mean-act_scores}
+mean(act_scores)
+```
+
+* Question 1b
+
+What is the standard deviation of act_scores?
+
+```{r sd-act_scores}
+sd(act_scores)
+```
+
+* Question 1c
+
+A perfect score is 36 or greater (the maximum reported score is 36).
+
+
+In act_scores, how many perfect scores are there out of $10^{4}$ simulated tests? 
+```{r perfect-scores}
+perfect_scores <- 36
+data.frame(act_scores = act_scores) %>%
+  filter(act_scores >= perfect_scores) %>%
+  summarize(count = n(), sum(act_scores, na.rm = TRUE))
+```
+* Question 1d
+
+In act_scores, what is the probability of an ACT score greater than 30
+
+Solution 1d:
+**$1 - Pr(actscores > 30) = 1 - pnorm(30, avg, sd)$
+```{r 1d-probability}
+1 - pnorm(30, avg, sd)
+```
+
+* Question 1e
+
+In act_scores, what is the probability of an ACT score less than or equal to 10?
+
+
+Solution 1e:
+
+The probability of ACT score $Pr(actscores <= 10) = pnorm(10, avg, sd)$
+
+```{r Probability}
+pnorm(10, avg, sd)
+```
+---
+
+* Question 2
+
+Set x equal to the sequence of integers 1 to 36. Use dnorm to determine the value of the probability density function over x given a mean and standard deviation of 5.7; save the result as f_x. Plot x against f_x
+```{r dnorm_plot}
+
+x <- seq(1:36)
+
+data.frame(x, f_x = dnorm(x, 20.9, 5.7)) %>%
+  ggplot(aes(x = x, y = f_x)) + geom_line(color = "blue") +
+  geom_vline(xintercept = 20.9, color = "red", linetype = "dashed",    size = 1.5) 
+```
+
+
+---
+## Question 3 and 4: ACT scores, part2
+
+In this 3-part question, you will convert ran ACT scores to Z-scores and answer some questions about them.
+
+* Question 3a
+
+Convert act_scores to Z-scores.Recall from Data Visualization that to standardize values (convert values into Z-scores, that is, values distributed with a mean of 0 and standard deviation of 1), you must subtract the mean and then divide by the standard deviation. Use the mean and standard deviation of **act_scores**, not the original values to generate random test scores.
+
+```{r z-scores}
+
+z_scores <- (act_scores - mean(act_scores))/sd(act_scores)
+mean(z_scores > 2)
+```
+
+* Question 3b
+
+What ACT score value corresponds to 2 standard deviations above the mean (z = 2)?
+
+```{r z-scores-3b}
+
+# The score value can be calculated using the following code:
+2*sd(act_scores) + mean(act_scores)
+```
+
+* Question 3c
+
+A Z-score of 2 corresponds roughly to the 97.5th percentile
+
+Use **qnorm** to determine the 97.5th percentile of normally distributed data with the mean and standard deviation observed in act_scores.
+
+What is the 97.5th percentile of act_scores?
+```{r qnorm-act_scores}
+
+qnorm(0.975, avg, sd)
+```
+
+* Question 4a
+
+What is the minimum integer score such that the probability of that score or lower is at least 0.95?
+
+```{r 4a}
+
+cdf <- sapply(1:36, function (x){
+  mean(act_scores <= x)
+})
+min(which(cdf >= .95))
+```
+
+* Question 4b
+
+Use qnorm to determine the expected 95th percentile, the value for the probability of receiving that score or lower is 0.95, given a mean score of 20.9 and standard deviation of 5.7
+
+What is the 95th percentile of act_scores?
+```{r 4b}
+
+qnorm(0.95, 20.9, 5.7)
+```
+
+* Question 4c
+
+Make a vector containing the quantiles for p <- seq(0.01, 0.99, 0.01), the 1s through 99th percentiles of the act_scores data. Save these as sample_quantiles.
+
+```{r 4c}
+
+p <- seq(0.01, 0.99, 0.01)
+sample_quantiles <- quantile(act_scores, p)
+names(sample_quantiles[max(which(sample_quantiles < 26))])
+```
+
+* Question 4d
+Make a corresponding set of theoretical quantiles using qnorm over the interval p <- seq(0.01, 0.99, 0.01) with mean 20.9 and standard deviation 5.7. Save these as theoretical_quantiles. Make a QQ-plot graphing sample_quantiles on the y-axis versus theoretical_quantiles on the x-axis.
+
+```{r 4d}
+p <- seq(0.01, 0.99, 0.01)
+sample_quantiles <- quantile(act_scores, p)
+theoretical_quantiles <- qnorm(p, 20.9, 5.7)
+qplot(theoretical_quantiles, sample_quantiles) + geom_abline() 
+```
+

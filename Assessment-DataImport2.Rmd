@@ -1,0 +1,34 @@
+---
+title: "Assessment Part2: Data Import"
+output: html_notebook
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(digits = 3) # report 3 significant digits
+```
+
+```{r library, include=FALSE}
+library(tidyverse)
+```
+
+```{r url}
+url <- "http://mlr.cs.umass.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data"
+
+read_lines(url, n_max = 3)
+```
+
+```{r read-raw-data, col_name = FALSE}
+data_wdbc <- read_csv(url)
+head(data_wdbc)
+class(data_wdbc)
+str(data_wdbc)
+```
+
+```{r answer17, echo=FALSE, message=FALSE, warning=FALSE}
+url <- "ftp://aftp.cmdl.noaa.gov/products/trends/co2/co2_annmean_mlo.txt"
+read_lines(url, n_max = 57)
+co2_mauna_loa <- read_csv(url, skip = 56)
+str(co2_mauna_loa)
+```
+
